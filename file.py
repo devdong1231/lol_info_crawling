@@ -2,8 +2,6 @@ from bs4 import BeautifulSoup
 import urllib.request as req
 import csv
 
-#직스 뺌
-
 champion = {'가렌':'garen','갈리오':'galio','갱플랭크':'gangplank','그라가스':'gragas','그레이브즈':'graves'
 ,'나르':'gnar','나미':'nami','나서스':'nasus','노틸러스':'nautilus','녹턴':'nocturne','누누와 윌럼프':'nunu','니달리':'nidalee','니코':'neeko'
 ,'다리우스':'darius','다이애나':'diana','드레이븐':'draven'
@@ -21,11 +19,12 @@ champion = {'가렌':'garen','갈리오':'galio','갱플랭크':'gangplank','그
 ,'파이크':'pyke','판테온':'pantheon','피들스틱':'fiddlesticks','피오라':'fiora','피즈':'fizz'
 ,'하이머딩거':'heimerdinger','헤카림':'hecarim'
 }
+
 position = {'Top':'탑','Jungle':'정글','Middle':'미드','Bottom':'원딜','Support':'서폿'}
 
 first_URL = 'https://www.op.gg/champion/'
 last_URL = '/statistics/'
-totalList = [['챔피언 이름','챔피언 영어 이름','포지션','픽률','승률'],]
+totalList = [['챔피언 이름','챔피언 영어 이름','포지션','픽률(%)','승률(%)'],]
 
 
 for key in champion:
@@ -38,18 +37,24 @@ for key in champion:
     # 승률 값 정리하기
     win_rate = str(pick[1])
     win_rate = win_rate.replace('<div class=\"champion-stats-trend-rate\">\n\t\t\t', '')
-    win_rate = win_rate.replace('\n\t\t</div>', '')
+    win_rate = win_rate.replace('%\n\t\t</div>', '')
     
     # 픽률 값 정리하기
     pick_rate = str(pick[0])
     pick_rate = pick_rate.replace('<div class=\"champion-stats-trend-rate\">\n\t\t\t', '')
-    pick_rate = pick_rate.replace('\n\t\t</div>', '')
+    pick_rate = pick_rate.replace('%\n\t\t</div>', '')
     
     # 챔피언의 포지션 가져오고, 정리하기
     pos = soup.find_all(class_='champion-stats-header__position__role')
     pos = str(pos[0])
     pos = pos.replace('<span class="champion-stats-header__position__role">', '')
     pos = pos.replace('</span>', '')
+    if(pos == 'Top'): pos = position['Top']
+    elif(pos == 'Jungle'): pos = position['Jungle']
+    elif(pos == 'Middle'): pos = position['Middle']
+    elif(pos == 'Bottom'): pos = position['Bottom']
+    elif(pos == 'Support'): pos = position['Support']
+
     # 행 만들기(챔피언 이름, 영어 이름, 포지션, 승률, 픽률)
     tmp = []
     tmp.append(key)
@@ -62,6 +67,7 @@ for key in champion:
     totalList.append(tmp)
     print(tmp)
 
+# csv파일로 저장
 f = open(f'LOL_info.csv', 'w', encoding='utf-8', newline='')
 csvWriter = csv.writer(f)
 for i in totalList:
@@ -71,22 +77,6 @@ f.close()
 
 print('완료!')
 
-
-# baseURL = 'https://www.op.gg/champion/yuumi/statistics/'
-# res = req.urlopen(baseURL)
-# soup = BeautifulSoup(res, 'html.parser')
-
-# pick = soup.find_all(class_='champion-stats-header__position__role')
-# pick = str(pick[0])
-# pick = pick.replace('<span class="champion-stats-header__position__role">', '')
-# pick = pick.replace('</span>', '')
-# print(pick)
-
-# pick = soup.find_all('div', {'class':'champion-stats-trend-rate'})
-
-# pick_rate = pick[0]
-# pick_rate = str(pick_rate)
-
-# pick_rate = pick_rate.replace('<div class=\"champion-stats-trend-rate\">\n\t\t\t', '')
-# pick_rate = pick_rate.replace('\n\t\t</div>', '')
-# print(pick_rate)
+# 참고한 사이트
+# 웹 크롤링 : https://www.youtube.com/watch?v=DBK9-QdX6Yw / https://www.youtube.com/watch?v=hVjojow0oqc
+# 크롤링한 데이터를 csv파일에 저장하기 : https://www.youtube.com/watch?v=ASFa0Rh4OMw
